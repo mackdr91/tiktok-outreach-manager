@@ -1,6 +1,6 @@
 // Author: Domonick Mack
 // Date: 2026-11-15
-// Description: Prisma ORM database configuration and baseline schema definition.
+// Description: Complete Prisma ORM relational schema for TokReach multi-brand workspaces, TikTok creators, campaigns, outreach sequences, contracts, and deliverables.
 
 generator client {
   provider = "prisma-client-js"
@@ -16,4 +16,222 @@ model SystemHealth {
   service   String   @unique
   status    String
   updatedAt DateTime @updatedAt
+}
+
+model User {
+  id           String            @id @default(cuid())
+  email        String            @unique
+  passwordHash String
+  fullName     String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  memberships  WorkspaceMember[]
+}
+
+model Workspace {
+  id                 String             @id @default(cuid())
+  name               String
+  slug               String             @unique
+  brandWebsite       String?
+  productCategory    String             @default("Consumer Goods")
+  defaultSenderName  String             @default("Brand Partnerships")
+  defaultSenderEmail String             @default("collabs@brand.com")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  members            WorkspaceMember[]
+  creators           Creator[]
+  campaigns          Campaign[]
+  sequences          OutreachSequence[]
+  contractTemplates  ContractTemplate[]
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  workspaceId String
+  userId      String?
+  inviteEmail String
+  role        String    @default("MEMBER") // OWNER | ADMIN | MEMBER
+  status      String    @default("ACTIVE") // ACTIVE | INVITED
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([workspaceId, inviteEmail])
+}
+
+model Creator {
+  id               String            @id @default(cuid())
+  workspaceId      String
+  tiktokHandle     String
+  displayName      String
+  email            String?
+  bio              String            @default("")
+  followerCount    Int               @default(0)
+  avgViews         Int               @default(0)
+  avgLikes         Int               @default(0)
+  avgComments      Int               @default(0)
+  avgShares        Int               @default(0)
+  engagementRate   Float             @default(0)
+  estimatedRateUsd Float             @default(100)
+  nicheTags        String[]
+  profileUrl       String
+  avatarUrl        String?
+  enrichmentSource String            @default("MANUAL") // MANUAL | CSV | OEMBED | AI_ENRICHED
+  notes            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  workspace        Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  campaigns        CampaignCreator[]
+
+  @@unique([workspaceId, tiktokHandle])
+}
+
+model Campaign {
+  id                  String             @id @default(cuid())
+  workspaceId         String
+  name                String
+  productName         String
+  productBrief        String
+  budgetUsd           Float              @default(2500)
+  defaultFeeUsd       Float              @default(150)
+  usageRightsDays     Int                @default(90)
+  sparkAdsRequired    Boolean            @default(true)
+  exclusivityDays     Int                @default(30)
+  targetNiche         String             @default("Lifestyle & UGC")
+  status              String             @default("ACTIVE") // ACTIVE | PAUSED | COMPLETED
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  workspace           Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  creators            CampaignCreator[]
+  sequences           OutreachSequence[]
+}
+
+model CampaignCreator {
+  id              String            @id @default(cuid())
+  campaignId      String
+  creatorId       String
+  stage           String            @default("DISCOVERED") // DISCOVERED | OUTREACH_QUEUED | CONTACTED | NEGOTIATING | CONTRACT_SENT | CONTRACT_SIGNED | SCRIPT_PENDING | DRAFT_REVIEW | LIVE | COMPLETED
+  agreedRateUsd   Float             @default(150)
+  magicLinkToken  String            @unique @default(cuid())
+  customHook      String?
+  dmScript        String?
+  dmCopiedAt      DateTime?
+  lastContactedAt DateTime?
+  replied         Boolean           @default(false)
+  shippingStatus  String            @default("PENDING") // PENDING | SHIPPED | DELIVERED
+  trackingNumber  String?
+  payoutStatus    String            @default("UNPAID") // UNPAID | SCHEDULED | PAID
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  campaign        Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  creator         Creator           @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  messages        OutreachMessage[]
+  contract        Contract?
+  deliverables    Deliverable[]
+
+  @@unique([campaignId, creatorId])
+}
+
+model OutreachSequence {
+  id          String         @id @default(cuid())
+  workspaceId String
+  campaignId  String?
+  name        String
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  campaign    Campaign?      @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  steps       OutreachStep[]
+}
+
+model OutreachStep {
+  id              String           @id @default(cuid())
+  sequenceId      String
+  stepOrder       Int
+  channel         String           @default("EMAIL") // EMAIL | TIKTOK_DM
+  delayHours      Int              @default(0)
+  subjectTemplate String?
+  bodyTemplate    String
+  sequence        OutreachSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+}
+
+model OutreachMessage {
+  id                String          @id @default(cuid())
+  campaignCreatorId String
+  channel           String          @default("EMAIL") // EMAIL | TIKTOK_DM
+  stepOrder         Int             @default(1)
+  subject           String?
+  body              String
+  status            String          @default("SENT") // QUEUED | SENT | COPIED_FOR_DM | REPLIED | FAILED
+  sentAt            DateTime?
+  createdAt         DateTime        @default(now())
+  campaignCreator   CampaignCreator @relation(fields: [campaignCreatorId], references: [id], onDelete: Cascade)
+}
+
+model ContractTemplate {
+  id               String     @id @default(cuid())
+  workspaceId      String
+  name             String
+  deliverableCount Int        @default(1)
+  usageRightsDays  Int        @default(90)
+  sparkAdsRequired Boolean    @default(true)
+  exclusivityDays  Int        @default(30)
+  revisionRounds   Int        @default(1)
+  paymentTerms     String     @default("Net 7 upon live TikTok URL & Spark Ad code submission")
+  bodyMarkdown     String
+  isDefault        Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  workspace        Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contracts        Contract[]
+}
+
+model Contract {
+  id                   String            @id @default(cuid())
+  campaignCreatorId    String            @unique
+  templateId           String?
+  status               String            @default("SENT") // DRAFT | SENT | SIGNED
+  renderedBodyMarkdown String
+  agreedRateUsd        Float             @default(150)
+  deliverableCount     Int               @default(1)
+  usageRightsDays      Int               @default(90)
+  sparkAdsRequired     Boolean           @default(true)
+  exclusivityRequired  Boolean           @default(true)
+  exclusivityDays      Int               @default(30)
+  revisionRounds       Int               @default(1)
+  paymentTerms         String            @default("Net 7 upon live TikTok URL & Spark Ad code submission")
+  signerFullName       String?
+  signerEmail          String?
+  signerIpAddress      String?
+  signerUserAgent      String?
+  signedAt             DateTime?
+  sentAt               DateTime          @default(now())
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  campaignCreator      CampaignCreator   @relation(fields: [campaignCreatorId], references: [id], onDelete: Cascade)
+  template             ContractTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+}
+
+model Deliverable {
+  id                String          @id @default(cuid())
+  campaignCreatorId String
+  title             String
+  status            String          @default("PENDING_SCRIPT") // PENDING_SCRIPT | SCRIPT_SUBMITTED | SCRIPT_APPROVED | DRAFT_SUBMITTED | REVISION_REQUESTED | APPROVED_TO_POST | LIVE | EXPIRED
+  scriptContent     String?
+  scriptFeedback    String?
+  draftVideoUrl     String?
+  draftFeedback     String?
+  tiktokPostUrl     String?
+  tiktokVideoId     String?
+  sparkAdCode       String?
+  viewsCount        Int             @default(0)
+  likesCount        Int             @default(0)
+  commentsCount     Int             @default(0)
+  sharesCount       Int             @default(0)
+  postedAt          DateTime?
+  usageExpiresAt    DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  campaignCreator   CampaignCreator @relation(fields: [campaignCreatorId], references: [id], onDelete: Cascade)
 }
