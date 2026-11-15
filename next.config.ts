@@ -7,7 +7,6 @@ Description: Next.js 15 configuration for standalone Docker production builds an
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   reactStrictMode: true,
   serverExternalPackages: ["bullmq", "ioredis", "bcryptjs", "nodemailer"]
 };
