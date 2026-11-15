@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { WorkspaceRecord } from "@/lib/types";
 import { DashboardMetricsData, OverviewDashboard } from "../dashboard/OverviewDashboard";
+import { CreatorDirectory } from "../creators/CreatorDirectory";
 
 export type ActiveTabId = "overview" | "creators" | "campaigns" | "outreach" | "contracts";
 
@@ -308,11 +309,7 @@ export function AppShell({
             (renderCreatorsTab ? (
               renderCreatorsTab(activeWorkspace.id)
             ) : (
-              <div className="rounded-xl border border-slate-200 bg-white p-8 text-center dark:border-[#1F2230] dark:bg-[#11131A]">
-                <p className="text-sm font-medium">
-                  TikTok Creator Directory & AI Bio Enrichment Module (Phase 3)
-                </p>
-              </div>
+              <CreatorDirectory workspaceId={activeWorkspace.id} />
             ))}
 
           {activeTab === "campaigns" &&
