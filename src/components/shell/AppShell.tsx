@@ -22,6 +22,8 @@ import {
 import { WorkspaceRecord } from "@/lib/types";
 import { DashboardMetricsData, OverviewDashboard } from "../dashboard/OverviewDashboard";
 import { CreatorDirectory } from "../creators/CreatorDirectory";
+import { CampaignPipeline } from "../campaigns/CampaignPipeline";
+import { OutreachStudio } from "../outreach/OutreachStudio";
 
 export type ActiveTabId = "overview" | "creators" | "campaigns" | "outreach" | "contracts";
 
@@ -316,22 +318,14 @@ export function AppShell({
             (renderCampaignsTab ? (
               renderCampaignsTab(activeWorkspace.id)
             ) : (
-              <div className="rounded-xl border border-slate-200 bg-white p-8 text-center dark:border-[#1F2230] dark:bg-[#11131A]">
-                <p className="text-sm font-medium">
-                  Campaign Kanban & Pipeline Module (Phase 4)
-                </p>
-              </div>
+              <CampaignPipeline workspaceId={activeWorkspace.id} />
             ))}
 
           {activeTab === "outreach" &&
             (renderOutreachTab ? (
               renderOutreachTab(activeWorkspace.id)
             ) : (
-              <div className="rounded-xl border border-slate-200 bg-white p-8 text-center dark:border-[#1F2230] dark:bg-[#11131A]">
-                <p className="text-sm font-medium">
-                  Automated Email Drip & Guided TikTok DM Queue Module (Phase 4)
-                </p>
-              </div>
+              <OutreachStudio workspaceId={activeWorkspace.id} />
             ))}
 
           {activeTab === "contracts" &&
