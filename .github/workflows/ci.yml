@@ -1,0 +1,50 @@
+# Author: Domonick Mack
+# Date: 2026-11-15
+# Description: GitHub Actions CI/CD pipeline for linting, typechecking, unit tests, and production build verification.
+
+name: TokReach CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  DATABASE_URL: "postgresql://tokreach:tokreach_password@localhost:5432/tokreach_db?schema=public"
+  REDIS_URL: "redis://localhost:6379"
+  JWT_SECRET: "ci-test-jwt-secret-key"
+  NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+
+jobs:
+  quality-and-build:
+    name: Lint, Typecheck, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript Typecheck
+        run: npm run typecheck
+
+      - name: Run Unit & Integration Tests
+        run: npm test
+
+      - name: Build Production Next.js Bundle
+        run: npm run build

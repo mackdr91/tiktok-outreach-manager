@@ -1,0 +1,36 @@
+/*
+Author: Domonick Mack
+Date: 2026-11-15
+Description: Global Tailwind CSS styles and custom theme variables for Linear/Attio dark/light design.
+*/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --border-subtle: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --accent-cyan: #25f4ee;
+  --accent-rose: #fe2c55;
+}
+
+.dark {
+  --bg-primary: #090a0f;
+  --bg-surface: #11131a;
+  --border-subtle: #1f2230;
+  --text-primary: #f3f5f8;
+  --text-muted: #8a90a6;
+  --accent-cyan: #25f4ee;
+  --accent-rose: #fe2c55;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}

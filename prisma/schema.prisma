@@ -1,0 +1,19 @@
+// Author: Domonick Mack
+// Date: 2026-11-15
+// Description: Prisma ORM database configuration and baseline schema definition.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SystemHealth {
+  id        String   @id @default(cuid())
+  service   String   @unique
+  status    String
+  updatedAt DateTime @updatedAt
+}

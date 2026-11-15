@@ -1,0 +1,16 @@
+# Author: Domonick Mack
+# Date: 2026-11-15
+# Description: Docker build context exclusions to keep container images fast and minimal.
+
+node_modules
+.next
+.git
+.gitignore
+coverage
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+postgres-data
+redis-data

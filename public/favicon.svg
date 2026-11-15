@@ -1,0 +1,10 @@
+<!--
+Author: Domonick Mack
+Date: 2026-11-15
+Description: TokReach brand vector icon combining TikTok cyan and rose accents.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#090A0F"/>
+  <path d="M36 14V40C36 44.4183 32.4183 48 28 48C23.5817 48 20 44.4183 20 40C20 35.5817 23.5817 32 28 32" stroke="#25F4EE" stroke-width="5" stroke-linecap="round"/>
+  <path d="M38 14C38 20.6274 43.3726 26 50 26" stroke="#FE2C55" stroke-width="5" stroke-linecap="round"/>
+</svg>
