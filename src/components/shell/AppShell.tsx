@@ -24,6 +24,7 @@ import { DashboardMetricsData, OverviewDashboard } from "../dashboard/OverviewDa
 import { CreatorDirectory } from "../creators/CreatorDirectory";
 import { CampaignPipeline } from "../campaigns/CampaignPipeline";
 import { OutreachStudio } from "../outreach/OutreachStudio";
+import { ContractDeliverableManager } from "../contracts/ContractDeliverableManager";
 
 export type ActiveTabId = "overview" | "creators" | "campaigns" | "outreach" | "contracts";
 
@@ -332,11 +333,7 @@ export function AppShell({
             (renderContractsTab ? (
               renderContractsTab(activeWorkspace.id)
             ) : (
-              <div className="rounded-xl border border-slate-200 bg-white p-8 text-center dark:border-[#1F2230] dark:bg-[#11131A]">
-                <p className="text-sm font-medium">
-                  TikTok Contract Builder & Deliverable Review Module (Phase 5)
-                </p>
-              </div>
+              <ContractDeliverableManager workspaceId={activeWorkspace.id} />
             ))}
         </main>
       </div>
